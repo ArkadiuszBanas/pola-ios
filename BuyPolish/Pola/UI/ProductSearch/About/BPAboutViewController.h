@@ -10,14 +10,15 @@
 @class BPAboutViewController;
 
 @protocol BPInfoViewControllerDelegate <NSObject>
-- (void)infoCancelled:(BPAboutViewController *)viewController;
-
 - (void)showWebWithUrl:(NSString *)url title:(NSString *)title;
+- (void)closeAboutViewController:(BPAboutViewController *)viewController;
 @end
 
 
 @interface BPAboutViewController : UITableViewController <MFMailComposeViewControllerDelegate, UINavigationControllerDelegate, BPReportProblemViewControllerDelegate>
 
 @property(nonatomic, weak) id <BPInfoViewControllerDelegate> delegate;
+
+
 
 @end

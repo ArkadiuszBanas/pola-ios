@@ -8,6 +8,7 @@
 #import "JSObjection.h"
 #import "BPAboutViewController.h"
 #import "BPAboutWebViewController.h"
+#import "BPTheme.h"
 
 
 @implementation BPAboutNavigationController
@@ -19,18 +20,22 @@
         BPAboutViewController *infoViewController = injector[[BPAboutViewController class]];
         infoViewController.delegate = self;
         self.viewControllers = @[infoViewController];
+
+        [self.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName: [BPTheme defaultTextColor]}];
+
+        self.navigationBar.barTintColor = [BPTheme lightBackgroundColor];
     }
 
     return self;
 }
 
-- (void)infoCancelled:(BPAboutViewController *)viewController {
-    [self.infoDelegate infoCancelled:self];
-}
-
 - (void)showWebWithUrl:(NSString *)url title:(NSString *)title {
     BPAboutWebViewController *webViewController = [[BPAboutWebViewController alloc] initWithUrl:url title:title];
     [self pushViewController:webViewController animated:YES];
+}
+
+- (void)closeAboutViewController:(BPAboutViewController *)viewController {
+    [self.infoDelegate infoCancelled:self];
 }
 
 @end

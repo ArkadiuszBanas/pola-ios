@@ -8,6 +8,8 @@
 #import "BPWebAboutRow.h"
 #import "BPAnalyticsHelper.h"
 #import "BPDeviceHelper.h"
+#import "BPTheme.h"
+#import "BPAboutViewCell.h"
 
 NSString *const ABOUT_APP_STORE_APP_URL = @"itms-apps://itunes.apple.com/app/id1038401148";
 NSString *const ABOUT_FACEBOOK_URL = @"https://www.facebook.com/app.pola";
@@ -20,12 +22,33 @@ NSString *const ABOUT_MAIL = @"kontakt@pola-app.pl";
 @end
 
 @implementation BPAboutViewController
+- (instancetype)init {
+    self = [super initWithStyle:UITableViewStyleGrouped];
+    if (self) {
+
+    }
+
+    return self;
+}
+
 
 - (void)viewDidLoad {
     [super viewDidLoad];
 
     self.title = NSLocalizedString(@"Info", @"Info");
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Close", @"") style:UIBarButtonItemStyleDone target:self action:@selector(didTapCloseButton:)];
+
+    UIButton *closeButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [closeButton setImage:[[UIImage imageNamed:@"CloseIcon"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] forState:UIControlStateNormal];
+    closeButton.tintColor = [BPTheme defaultTextColor];
+    [closeButton addTarget:self action:@selector(didTapCloseButton:) forControlEvents:UIControlEventTouchUpInside];
+    [closeButton sizeToFit];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:closeButton];
+
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    self.tableView.backgroundColor = [BPTheme lightBackgroundColor];
+    self.tableView.sectionHeaderHeight = 0;
+    self.tableView.sectionFooterHeight = 0;
+
 
     _rowList = [self createRowList];
 }
@@ -48,7 +71,7 @@ NSString *const ABOUT_MAIL = @"kontakt@pola-app.pl";
             [BPWebAboutRow rowWithTitle:NSLocalizedString(@"Partners", @"Partnerzy") action:@selector(didTapWebRow:) url:@"https://www.pola-app.pl/m/partners" analyticsName:@"Partnerzy"]
     ];
     [rowList addObject:
-        [BPAboutRow rowWithTitle:NSLocalizedString(@"Report error in data", @"Zgłoś błąd w danych") action:@selector(didTapReportError:)]
+            [BPAboutRow rowWithTitle:NSLocalizedString(@"Report error in data", @"Zgłoś błąd w danych") action:@selector(didTapReportError:)]
     ];
     if ([MFMailComposeViewController canSendMail]) {
         [rowList addObject:
@@ -65,6 +88,10 @@ NSString *const ABOUT_MAIL = @"kontakt@pola-app.pl";
             [BPAboutRow rowWithTitle:NSLocalizedString(@"Pola on Twitter", @"Pola na Twitterze") action:@selector(didTapTwitter:)]
     ];
     return rowList;
+}
+
+- (void)didTapCloseButton:(UIButton *)button {
+    [self.delegate closeAboutViewController:self];
 }
 
 - (void)didTapReportError:(BPAboutRow *)row {
@@ -109,11 +136,11 @@ NSString *const ABOUT_MAIL = @"kontakt@pola-app.pl";
     [self.delegate showWebWithUrl:row.url title:row.title];
 }
 
-- (void)didTapCloseButton:(UIBarButtonItem *)button {
-    [self.delegate infoCancelled:self];
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 1;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return self.rowList.count;
 }
 
@@ -124,7 +151,7 @@ NSString *const ABOUT_MAIL = @"kontakt@pola-app.pl";
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
     }
 
-    BPAboutRow *infoRow = self.rowList[(NSUInteger) indexPath.row];
+    BPAboutRow *infoRow = self.rowList[(NSUInteger) indexPath.section];
 
     cell.textLabel.text = infoRow.title;
 
@@ -133,17 +160,18 @@ NSString *const ABOUT_MAIL = @"kontakt@pola-app.pl";
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     BPAboutRow *infoRow = self.rowList[(NSUInteger) indexPath.row];
     [self performSelector:infoRow.action withObject:infoRow];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
+
 #pragma clang diagnostic pop
 
 #pragma mark - MFMailComposeViewControllerDelegate
 
-- (void)mailComposeController:(MFMailComposeViewController*)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError*)error
-{
+- (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error {
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
